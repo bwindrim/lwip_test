@@ -1,6 +1,17 @@
 # Prerequisites
 *.d
 
+# Other stuff
+.idea
+.vscode
+_deps
+cmake-*
+build
+
+# Text files
+*.txt
+*.lst
+
 # Object files
 *.o
 *.ko
