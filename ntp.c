@@ -157,8 +157,8 @@ void set_rtc_from_ntp(void) {
     NTP_T *state = ntp_init();
     if (!state)
         return;
-    while(true) {
-        if (absolute_time_diff_us(get_absolute_time(), state->ntp_test_time) < 0 && !state->dns_request_sent) {
+    while(!rtc_running()) {
+        if (!state->dns_request_sent) {
 
             // Set alarm in case udp requests are lost
             state->ntp_resend_alarm = add_alarm_in_ms(NTP_RESEND_TIME, ntp_failed_handler, state, true);
