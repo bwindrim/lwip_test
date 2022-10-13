@@ -11,6 +11,8 @@
 #include "lwip/pbuf.h"
 #include "lwip/tcp.h"
 
+extern void set_rtc_from_ntp(void);
+
 #if 0
 #define TEST_TCP_SERVER_IP "192.168.58.23"
 #else
@@ -318,7 +320,7 @@ static void wireguard_setup() {
     // Start the RTC
     // Start on Friday 5th of June 2020 15:45:00
     datetime_t t;
-
+#if 0
     if (!rtc_running()) {
         // Set up the RTC
         // Start on Friday 5th of June 2020 15:45:00
@@ -334,7 +336,11 @@ static void wireguard_setup() {
         rtc_init();
         rtc_set_datetime(&t);
     }
-
+#else
+    if (!rtc_running()) {
+        set_rtc_from_ntp();
+    }
+#endif
     if (!ip_addr_isany(&peer.endpoint_ip)) {
         // We have an IP address for the peer, so start the outbound connection
         if (wireguardif_connect(wg_netif, wireguard_peer_index)) {
