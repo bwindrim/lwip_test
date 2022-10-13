@@ -113,7 +113,7 @@ static err_t tcp_client_sent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
 static err_t send_to_server(void *arg, struct tcp_pcb *tpcb)
 {
     TCP_CLIENT_T *state = (TCP_CLIENT_T*)arg;
-    DEBUG_printf("Writing %d bytes to server\n", state->buffer_len);
+    DEBUG_printf("Writing %d bytes to server\n", sizeof(message));
     err_t err = tcp_write(tpcb, message, sizeof(message), TCP_WRITE_FLAG_COPY);
     if (err != ERR_OK) {
         DEBUG_printf("Failed to write data %d\n", err);
