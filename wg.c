@@ -6,6 +6,7 @@
 #include "pico/util/datetime.h"
  
 #include "wireguardif.h"
+#include "public.h"
 
 static struct netif wg_netif_struct = {0};
 static struct netif *wg_netif = NULL; // ToDO: eliminate, as always == &wg_netif_struct
@@ -19,7 +20,7 @@ void wireguard_setup() {
 	ip_addr_t gateway = IPADDR4_INIT_BYTES(192, 168, 58, 1);
 
 	// Setup the WireGuard device structure
-	wg.private_key = "CM3/AgWrSFy1fbyZ55iiciTBZXOjgjhsuL8w6WXN41E=";
+	wg.private_key = PRIVATE_KEY;
 	wg.listen_port = 51822;
 	wg.bind_netif = NULL;
 
@@ -32,7 +33,7 @@ void wireguard_setup() {
 	// Initialise the first WireGuard peer structure
 	struct wireguardif_peer peer;
 	wireguardif_peer_init(&peer);
-	peer.public_key = "UL1lDnyVLeF9anKRgt4clUBCJBR30NAUOS+RN+37qlI=";
+	peer.public_key = PEER_PUBLIC_KEY;
 	peer.preshared_key = NULL;
 #if 1
 	// Set up the peer's IP range (192.168.3.1/32) - "server"

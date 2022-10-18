@@ -8,6 +8,8 @@
 #include "lwip/pbuf.h"
 #include "lwip/tcp.h"
 
+#include "public.h"
+
 extern void set_rtc_from_ntp(void);
 extern void wireguard_setup();
 
@@ -27,8 +29,8 @@ extern void wireguard_setup();
 #error TEST_TCP_SERVER_IP not defined
 #endif
 
-char ssid[] = "BedroomTestNetwork";
-char pass[] = "dvdrtsPnk4xq";
+char ssid[] = SSID;
+char pass[] = WIFI_PASSWD;
 
 char message[] = "HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n";
 
