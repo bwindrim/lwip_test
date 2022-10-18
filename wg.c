@@ -6,7 +6,7 @@
 #include "pico/util/datetime.h"
  
 #include "wireguardif.h"
-#include "public.h"
+#include "private.h"
 
 static struct netif wg_netif_struct = {0};
 static struct netif *wg_netif = NULL; // ToDO: eliminate, as always == &wg_netif_struct

@@ -8,7 +8,7 @@
 #include "lwip/pbuf.h"
 #include "lwip/tcp.h"
 
-#include "public.h"
+#include "private.h"
 
 extern void set_rtc_from_ntp(void);
 extern void wireguard_setup();
