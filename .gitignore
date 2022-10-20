@@ -8,6 +8,9 @@ _deps
 cmake-*
 build
 
+# Things to keep out of GitHub
+private.h
+
 # Text files
 *.txt
 *.lst

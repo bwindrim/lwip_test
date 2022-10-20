@@ -7,13 +7,14 @@
 #include "lwip/sys.h"
 #include "lwip/pbuf.h"
 #include "lwip/tcp.h"
+#include "lwip/apps/lwiperf.h"
 
 #include "private.h"
 
 extern void set_rtc_from_ntp(void);
 extern void wireguard_setup();
 
-#if 0
+#if 1
 #define TEST_TCP_SERVER_IP "192.168.58.23"
 #else
 #define TEST_TCP_SERVER_IP "192.168.3.1"
@@ -255,6 +256,23 @@ void run_tcp_client_test(void) {
     free(state);
 }
 
+// Report IP results and exit
+static void iperf_report(void *arg, enum lwiperf_report_type report_type,
+                         const ip_addr_t *local_addr, u16_t local_port, const ip_addr_t *remote_addr, u16_t remote_port,
+                         u32_t bytes_transferred, u32_t ms_duration, u32_t bandwidth_kbitpsec) {
+    static uint32_t total_iperf_megabytes = 0;
+    uint32_t mbytes = bytes_transferred / 1024 / 1024;
+    float mbits = bandwidth_kbitpsec / 1000.0;
+
+    total_iperf_megabytes += mbytes;
+
+    printf("Completed iperf transfer of %d MBytes @ %.1f Mbits/sec\n", mbytes, mbits);
+    printf("Total iperf megabytes since start %d Mbytes\n", total_iperf_megabytes);
+#if CYW43_USE_STATS
+    printf("packets in %u packets out %u\n", CYW43_STAT_GET(PACKET_IN_COUNT), CYW43_STAT_GET(PACKET_OUT_COUNT));
+#endif
+}
+
 int main() {
     int connect_failed = 1;
 	stdio_init_all();
@@ -289,8 +307,35 @@ int main() {
 
     wireguard_setup();
     sleep_ms(2000);
+#define CLIENT_TEST 0
+#if CLIENT_TEST
+    printf("\nReady, running iperf client\n");
+    ip_addr_t clientaddr;
+    ip4addr_aton(TEST_TCP_SERVER_IP, &clientaddr);
+//    ip4_addr_set_u32(&clientaddr, ipaddr_addr(xstr(TEST_TCP_SERVER_IP)));
+    assert(lwiperf_start_tcp_client_default(&clientaddr, &iperf_report, NULL) != NULL);
+#else
+    printf("\nReady, running iperf server at %s\n", ip4addr_ntoa(netif_ip4_addr(netif_list)));
+    lwiperf_start_tcp_server_default(&iperf_report, NULL);
+#endif
 
-    run_tcp_client_test();
+    while(true) {
+        // the following #ifdef is only here so this same example can be used in multiple modes;
+        // you do not need it in your code
+#if PICO_CYW43_ARCH_POLL
+        // if you are using pico_cyw43_arch_poll, then you must poll periodically from your
+        // main loop (not from a timer) to check for WiFi driver or lwIP work that needs to be done.
+        cyw43_arch_poll();
+        sleep_ms(1);
+#else
+        // if you are not using pico_cyw43_arch_poll, then WiFI driver and lwIP work
+        // is done via interrupt in the background. This sleep is just an example of some (blocking)
+        // work you might be doing.
+        sleep_ms(1000);
+#endif
+    }
+
+//    run_tcp_client_test();
     cyw43_arch_deinit();
 	return 0;
 }
